@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Connectify.Models;
 
-namespace Connectify.Models;
+namespace Connectify.Data;
 
 public partial class AppDbContext : DbContext
 {
