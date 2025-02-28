@@ -1,4 +1,4 @@
-using Connectify.Models;
+using Connectify.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
