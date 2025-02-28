@@ -1,4 +1,5 @@
-﻿using Connectify.Models;
+﻿using Connectify.Data;
+using Connectify.Models;
 using Microsoft.EntityFrameworkCore;
 
 public class AuthRepository : IAuthRepository
