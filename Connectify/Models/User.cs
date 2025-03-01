@@ -23,7 +23,7 @@ public partial class User
 
     public DateTime? DateOfBirth { get; set; }
 
-    public string? Gender { get; set; }
+    public Gender Gender { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
