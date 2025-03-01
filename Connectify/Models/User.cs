@@ -5,7 +5,7 @@ namespace Connectify.Models;
 
 public partial class User
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }  // UUID thay vì int
 
     public string Username { get; set; } = null!;
 
@@ -13,12 +13,23 @@ public partial class User
 
     public string PasswordHash { get; set; } = null!;
 
-    public string? VerificationToken { get; set; }
+    public string? FullName { get; set; } // Họ và tên
 
-    public bool IsVerified { get; set; }
+    public string? Bio { get; set; } // Tiểu sử cá nhân
 
-    public string? Avatar { get; set; }
+    public string? AvatarUrl { get; set; } // Ảnh đại diện
 
-    public DateTime? CreatedAt { get; set; }
+    public string? CoverUrl { get; set; } // Ảnh bìa
 
+    public DateTime? DateOfBirth { get; set; } // Ngày sinh
+
+    public string? Gender { get; set; } // Giới tính
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Mặc định thời gian hiện tại
+
+    public DateTime? UpdatedAt { get; set; } // Cập nhật lần cuối
+
+    public bool IsVerified { get; set; } // Đã xác thực email chưa?
+
+    public bool IsActive { get; set; } = true; // Tài khoản có bị khóa không?
 }
