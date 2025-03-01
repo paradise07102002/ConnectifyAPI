@@ -23,6 +23,9 @@ public class AuthService : IAuthService
 
         var newUser = new User
         {
+            FullName = dto.FullName,
+            Gender = dto.Gender,
+            DateOfBirth = dto.DateOfBirth,
             Username = dto.Username,
             Email = dto.Email,
             PasswordHash = PasswordHasher.HashPassword(dto.Password),
