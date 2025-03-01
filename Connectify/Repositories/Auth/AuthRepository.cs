@@ -19,7 +19,7 @@ public class AuthRepository : IAuthRepository
     public async Task AddUserAsync(User user)
     {
         // Gán thời gian tạo người dùng (UTC)
-        user.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+        user.CreatedAt = DateTime.UtcNow;
 
         // Thêm user vào DbContext nhưng chưa lưu vào database
         await _context.Users.AddAsync(user);
