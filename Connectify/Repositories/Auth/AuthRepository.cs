@@ -18,6 +18,11 @@ public class AuthRepository : IAuthRepository
     // Thêm một người dùng mới vào database (chưa lưu ngay)
     public async Task AddUserAsync(User user)
     {
+
+        if (user.Id == Guid.Empty)
+        {
+            user.Id = Guid.NewGuid();
+        }    
         // Gán thời gian tạo người dùng (UTC)
         user.CreatedAt = DateTime.UtcNow;
 
