@@ -28,6 +28,7 @@ public partial class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Mặc định thời gian hiện tại
 
     public DateTime? UpdatedAt { get; set; } // Cập nhật lần cuối
+    public string? VerificationToken { get; set; }
 
     public bool IsVerified { get; set; } // Đã xác thực email chưa?
 
