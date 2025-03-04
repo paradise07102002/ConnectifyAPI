@@ -22,9 +22,10 @@ public class AuthRepository : IAuthRepository
         if (user.Id == Guid.Empty)
         {
             user.Id = Guid.NewGuid();
-        }    
+        }
         // Gán thời gian tạo người dùng (UTC)
         user.CreatedAt = DateTime.UtcNow;
+        //user.CreatedAt = DateTime.SpecifyKind(user.CreatedAt, DateTimeKind.Utc);
 
         // Thêm user vào DbContext nhưng chưa lưu vào database
         await _context.Users.AddAsync(user);
