@@ -16,7 +16,6 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    //Register
     public async Task<bool> RegisterUserAsync(RegisterDto dto)
     {
         if (await _authRepository.EmailExistsAsync(dto.Email)) return false;
@@ -61,7 +60,7 @@ public class AuthService : IAuthService
                 ValidateAudience = true,
                 ValidAudience = _configuration["Jwt:Issuer"],
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero// Không cho phép token hết hạn bị lệch thời gian
+                ClockSkew = TimeSpan.Zero
             };
 
             var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
@@ -96,8 +95,6 @@ public class AuthService : IAuthService
         return (LoginResult.Success, token);
     }
 
-
-    // Tạo JWT token
     private string GenerateJwtToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -120,7 +117,6 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    //GenerateToken()
     private string GenerateVerificationToken(string email)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -129,14 +125,14 @@ public class AuthService : IAuthService
         var claims = new[]
         {
         new Claim(ClaimTypes.Email, email),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique ID
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) 
     };
 
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Issuer"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(24), // Token hết hạn sau 24h
+            expires: DateTime.UtcNow.AddHours(24),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
