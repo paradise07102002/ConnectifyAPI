@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Connectify.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -82,19 +83,49 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task<(LoginResult, string?)> LoginAsync(LoginDto dto)
+    public async Task<(LoginResult, string?, string?)> LoginAsync(LoginDto dto)
     {
         var user = await _authRepository.GetUserByEmailAsync(dto.Email);
         if (user == null || !PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash))
-            return (LoginResult.InvalidCredentials, null);
+            return (LoginResult.InvalidCredentials, null, null);
 
         if (!user.IsVerified)
-            return (LoginResult.EmailNotVerified, null);
+            return (LoginResult.EmailNotVerified, null, null);
 
-        var token = GenerateJwtToken(user);
-        return (LoginResult.Success, token);
+        var accessToken = GenerateJwtToken(user);
+        var refreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _authRepository.SaveChangesAsync();
+
+        return (LoginResult.Success, accessToken, refreshToken);
     }
 
+    public async Task<(bool IsSuccess, string? AccessToken, string? RefreshToken, string? ErrorMessage)> RefreshAccessTokenAsync(string refreshToken)
+    {
+        var user = await _authRepository.GetUserByRefreshTokenAsync(refreshToken);
+        if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
+        {
+            return (false, null, null, "Refresh Token không hợp lệ hoặc đã hết hạn");
+        }
+
+        var newAccessToken = GenerateJwtToken(user);
+
+        var newRefreshToken = GenerateRefreshToken();
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _authRepository.SaveChangesAsync();
+
+        return (true, newAccessToken, newRefreshToken, null);
+    }
+
+    private string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
     private string GenerateJwtToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
