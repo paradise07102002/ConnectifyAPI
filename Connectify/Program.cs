@@ -2,6 +2,9 @@ using Connectify.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddEnvironmentVariables();
+
 var configuration = builder.Configuration;
 //Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
