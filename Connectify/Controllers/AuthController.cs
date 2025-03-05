@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
 
-        var (result, token) = await _authService.LoginAsync(dto);
+        var (result, accessToken, refreshToken) = await _authService.LoginAsync(dto);
 
         switch (result)
         {
@@ -51,7 +51,7 @@ public class AuthController : ControllerBase
                 return StatusCode(403, new { message = "Tài khoản chưa xác thực Email. Vui lòng kiểm tra email để xác thực." });
 
             case LoginResult.Success:
-                return Ok(new { token });
+                return Ok(new { accessToken, refreshToken });
 
             default:
                 return StatusCode(500, new { message = "Lỗi không xác định." });
