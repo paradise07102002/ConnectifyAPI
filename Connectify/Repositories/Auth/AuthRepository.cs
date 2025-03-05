@@ -45,11 +45,4 @@ public class AuthRepository : IAuthRepository
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
-
-
-    //Task<bool> EmailExistsAsync(string email);
-    //Task AddUserAsync(User user);
-    //Task<User?> GetUserByTokenAsync(string token);
-    //Task<User?> GetUserByEmailAsync(string email);
-    //Task SaveChangesAsync();
 }
