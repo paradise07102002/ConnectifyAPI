@@ -38,7 +38,7 @@ public class AuthService : IAuthService
         await _authRepository.SaveChangesAsync();
 
         string apiUrl = _configuration["AppSettings:ApiUrl"];
-        string confirmationLink = $"{apiUrl}/api/users/comfirm-email?token={newUser.VerificationToken}";
+        string confirmationLink = $"{apiUrl}/api/auth/confirm-email?token={newUser.VerificationToken}";
 
         await _emailSender.SendEmailAsync(dto.Email, "Xác nhận email", $"Nhấn vào link sau để xác thực tài khoản: <a href='{confirmationLink}'>Xác nhận</>");
 
