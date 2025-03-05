@@ -40,6 +40,12 @@ public class AuthRepository : IAuthRepository
         return await _context.Users.FirstOrDefaultAsync(u => u.VerificationToken == token);
     }
 
+    public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
+    {
+        return await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+    }
+
+
     // Lấy thông tin người dùng dựa trên email
     public async Task<User?> GetUserByEmailAsync(string email)
     {
