@@ -11,6 +11,6 @@
         public bool IsActive => RevokeAt == null && !IsExpired;
 
         public Guid UserId {  get; set; }
-        public User user { get; set; } = null!;
+        public User User { get; set; } = null!;
     }
 }
