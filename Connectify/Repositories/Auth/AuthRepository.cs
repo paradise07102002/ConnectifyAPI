@@ -44,12 +44,6 @@ public class AuthRepository : IAuthRepository
     // Lưu các thay đổi vào database
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
 
-    // Lấy thông tin người dùng dựa trên mã xác minh (Verification Token)
-    public async Task<User?> GetUserByTokenAsync(string token)
-    {
-        return await _context.Users.FirstOrDefaultAsync(u => u.VerificationToken == token);
-    }
-
     // Lấy thông tin người dùng dựa trên email
     public async Task<User?> GetUserByEmailAsync(string email)
     {
