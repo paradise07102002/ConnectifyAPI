@@ -11,7 +11,11 @@ public class AuthRepository : IAuthRepository
     {
         _context = context;
     }
-
+    public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
+    {
+        return await _context.RefreshTokens.Include(r => r.User)
+            .FirstOrDefaultAsync(r => r.Token == token);
+    }
     public async Task AddRefreshTokenAsync(RefreshToken refreshToken)
     {
         await _context.RefreshTokens.AddAsync(refreshToken);
