@@ -113,21 +113,24 @@ public class AuthService : IAuthService
 
     public async Task<(bool IsSuccess, string? AccessToken, string? RefreshToken, string? ErrorMessage)> RefreshAccessTokenAsync(string refreshToken)
     {
-        var user = await _authRepository.GetUserByRefreshTokenAsync(refreshToken);
-        if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
+        var storedRefreshToken = await _authRepository.GetRefreshTokenAsync(refreshToken);
+        if (storedRefreshToken == null || storedRefreshToken.Expires <= DateTime.UtcNow)
         {
             return (false, null, null, "Refresh Token không hợp lệ hoặc đã hết hạn");
         }
 
+        var user = storedRefreshToken.User;
         var newAccessToken = GenerateJwtToken(user);
 
-        var newRefreshToken = GenerateRefreshToken();
-        user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+        var newRefreshToken = new RefreshToken
+        {
+            UserId = user.Id,
+            Token = GenerateRefreshToken(),
+            Expires = DateTime.UtcNow.AddDays(7)
+        };
 
-        await _authRepository.SaveChangesAsync();
-
-        return (true, newAccessToken, newRefreshToken, null);
+        await _authRepository.AddRefreshTokenAsync(newRefreshToken);
+        return (true, newAccessToken, newRefreshToken.Token, null);
     }
 
     private string GenerateRefreshToken()
