@@ -34,7 +34,6 @@ public partial class User
     public bool IsVerified { get; set; }
 
     public bool IsActive { get; set; }
-    
-    public String? RefreshToken { get; set; }
-    public DateTime? RefreshTokenExpiry {  get; set; }
+
+    public List<RefreshToken> RefreshTokens { get; set; } = new();
 }
