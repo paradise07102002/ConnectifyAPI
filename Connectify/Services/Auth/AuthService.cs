@@ -102,9 +102,6 @@ public class AuthService : IAuthService
             UserId = user.Id,
         };
 
-        //user.RefreshToken = refreshToken;
-        //user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
         await _authRepository.AddRefreshTokenAsync(newRefreshToken);
         await _authRepository.SaveChangesAsync();
 
