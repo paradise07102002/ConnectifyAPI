@@ -95,9 +95,17 @@ public class AuthService : IAuthService
         var accessToken = GenerateJwtToken(user);
         var refreshToken = GenerateRefreshToken();
 
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+        var newRefreshToken = new RefreshToken
+        {
+            Token = refreshToken,
+            Expires = DateTime.UtcNow.AddDays(7),
+            UserId = user.Id,
+        };
 
+        //user.RefreshToken = refreshToken;
+        //user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _authRepository.AddRefreshTokenAsync(newRefreshToken);
         await _authRepository.SaveChangesAsync();
 
         return (LoginResult.Success, accessToken, refreshToken);
