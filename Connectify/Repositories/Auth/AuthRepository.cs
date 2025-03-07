@@ -12,6 +12,12 @@ public class AuthRepository : IAuthRepository
         _context = context;
     }
 
+    public async Task AddRefreshTokenAsync(RefreshToken refreshToken)
+    {
+        await _context.RefreshTokens.AddAsync(refreshToken);
+        await _context.SaveChangesAsync();
+    }
+
     // Kiểm tra xem email đã tồn tại trong hệ thống hay chưa
     public async Task<bool> EmailExistsAsync(string email) => await _context.Users.AnyAsync(u => u.Email == email);
 
