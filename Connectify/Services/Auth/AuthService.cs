@@ -119,15 +119,7 @@ public class AuthService : IAuthService
         var user = storedRefreshToken.User;
         var newAccessToken = GenerateJwtToken(user);
 
-        var newRefreshToken = new RefreshToken
-        {
-            UserId = user.Id,
-            Token = GenerateRefreshToken(),
-            Expires = DateTime.UtcNow.AddDays(7)
-        };
-
-        await _authRepository.AddRefreshTokenAsync(newRefreshToken);
-        return (true, newAccessToken, newRefreshToken.Token, null);
+        return (true, newAccessToken, refreshToken, null);
     }
 
     private string GenerateRefreshToken()
