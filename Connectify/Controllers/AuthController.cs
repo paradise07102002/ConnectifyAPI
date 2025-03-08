@@ -7,23 +7,26 @@ public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
 
+    // Constructor to inject the authentication service
     public AuthController(IAuthService authService)
     {
         _authService = authService;
     }
 
+    // Endpoint for user registration
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto request)
     {
-        var errorMessage = await _authService.RegisterUserAsync(request);
-        if (!errorMessage)
+        var isRegistered = await _authService.RegisterUserAsync(request);
+        if (!isRegistered)
         {
-            return BadRequest(new { message = "email already exists" });
+            return BadRequest(new { message = "Email already exists" });
         }
 
         return StatusCode(201, new { message = "Registered successfully! Please verify your email." });
     }
 
+    // Endpoint to confirm user email using a token
     [HttpGet("confirm-email")]
     public async Task<IActionResult> ConfirmEmail(string token)
     {
@@ -33,32 +36,32 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = errorMessage });
         }
 
-        return Ok(new { message = "Xác thực email thành công" });
-
+        return Ok(new { message = "Email verification successful" });
     }
 
+    // Endpoint for user login
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-
         var (result, accessToken, refreshToken) = await _authService.LoginAsync(dto);
 
         switch (result)
         {
             case LoginResult.InvalidCredentials:
-                return Unauthorized(new { message = "Email hoặc mật khẩu không đúng!" });
+                return Unauthorized(new { message = "Invalid email or password!" });
 
             case LoginResult.EmailNotVerified:
-                return StatusCode(403, new { message = "Tài khoản chưa xác thực Email. Vui lòng kiểm tra email để xác thực." });
+                return StatusCode(403, new { message = "Email not verified. Please check your email for verification." });
 
             case LoginResult.Success:
                 return Ok(new { accessToken, refreshToken });
 
             default:
-                return StatusCode(500, new { message = "Lỗi không xác định." });
+                return StatusCode(500, new { message = "Unknown error." });
         }
     }
 
+    // Endpoint to refresh access token
     [HttpPost("refresh-token")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
     {
@@ -74,6 +77,7 @@ public class AuthController : ControllerBase
         });
     }
 
+    // Endpoint for user logout
     [HttpPost("logout")]
     public async Task<IActionResult> Logout([FromBody] LogoutDto dto)
     {
@@ -81,10 +85,9 @@ public class AuthController : ControllerBase
 
         if (!success)
         {
-            return BadRequest(new { message = "Đăng xuất thất bại. RefreshToken không hợp lệ!" });
+            return BadRequest(new { message = "Logout failed. Invalid refresh token!" });
         }
 
-        return Ok(new { message = "Đăng xuất thành công!" });
+        return Ok(new { message = "Logout successful!" });
     }
-
 }
