@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Connectify.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -16,13 +17,15 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
-    //Register
     public async Task<bool> RegisterUserAsync(RegisterDto dto)
     {
         if (await _authRepository.EmailExistsAsync(dto.Email)) return false;
 
         var newUser = new User
         {
+            FullName = dto.FullName,
+            Gender = dto.Gender,
+            DateOfBirth = dto.DateOfBirth,
             Username = dto.Username,
             Email = dto.Email,
             PasswordHash = PasswordHasher.HashPassword(dto.Password),
@@ -35,7 +38,7 @@ public class AuthService : IAuthService
         await _authRepository.SaveChangesAsync();
 
         string apiUrl = _configuration["AppSettings:ApiUrl"];
-        string confirmationLink = $"{apiUrl}/api/users/comfirm-email?token={newUser.VerificationToken}";
+        string confirmationLink = $"{apiUrl}/api/auth/confirm-email?token={newUser.VerificationToken}";
 
         await _emailSender.SendEmailAsync(dto.Email, "Xác nhận email", $"Nhấn vào link sau để xác thực tài khoản: <a href='{confirmationLink}'>Xác nhận</>");
 
@@ -58,7 +61,7 @@ public class AuthService : IAuthService
                 ValidateAudience = true,
                 ValidAudience = _configuration["Jwt:Issuer"],
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero// Không cho phép token hết hạn bị lệch thời gian
+                ClockSkew = TimeSpan.Zero
             };
 
             var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
@@ -80,21 +83,62 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task<(LoginResult, string?)> LoginAsync(LoginDto dto)
+    public async Task<(LoginResult, string?, string?)> LoginAsync(LoginDto dto)
     {
         var user = await _authRepository.GetUserByEmailAsync(dto.Email);
         if (user == null || !PasswordHasher.VerifyPassword(dto.Password, user.PasswordHash))
-            return (LoginResult.InvalidCredentials, null);
+            return (LoginResult.InvalidCredentials, null, null);
 
         if (!user.IsVerified)
-            return (LoginResult.EmailNotVerified, null);
+            return (LoginResult.EmailNotVerified, null, null);
 
-        var token = GenerateJwtToken(user);
-        return (LoginResult.Success, token);
+        var accessToken = GenerateJwtToken(user);
+        var refreshToken = GenerateRefreshToken();
+
+        var newRefreshToken = new RefreshToken
+        {
+            Token = refreshToken,
+            Expires = DateTime.UtcNow.AddDays(7),
+            UserId = user.Id,
+        };
+
+        await _authRepository.AddRefreshTokenAsync(newRefreshToken);
+        await _authRepository.SaveChangesAsync();
+
+        return (LoginResult.Success, accessToken, refreshToken);
     }
 
+    public async Task<(bool IsSuccess, string? AccessToken, string? RefreshToken, string? ErrorMessage)> RefreshAccessTokenAsync(string refreshToken)
+    {
+        var storedRefreshToken = await _authRepository.GetRefreshTokenAsync(refreshToken);
+        if (storedRefreshToken == null || storedRefreshToken.Expires <= DateTime.UtcNow)
+        {
+            return (false, null, null, "Refresh Token không hợp lệ hoặc đã hết hạn");
+        }
 
-    // Tạo JWT token
+        var user = storedRefreshToken.User;
+        var newAccessToken = GenerateJwtToken(user);
+
+        return (true, newAccessToken, refreshToken, null);
+    }
+
+    public async Task<bool> LogoutAsync(string refreshToken)
+    {
+        var storedToken = await _authRepository.GetRefreshTokenAsync(refreshToken);
+
+        if (refreshToken == null)
+        {
+            return false;
+        }    
+
+        await _authRepository.RemoveRefreshTokenAsync(storedToken);
+        return true;
+    }
+
+    private string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
     private string GenerateJwtToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -117,7 +161,6 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    //GenerateToken()
     private string GenerateVerificationToken(string email)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -126,14 +169,14 @@ public class AuthService : IAuthService
         var claims = new[]
         {
         new Claim(ClaimTypes.Email, email),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) // Unique ID
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) 
     };
 
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Issuer"],
             claims: claims,
-            expires: DateTime.UtcNow.AddHours(24), // Token hết hạn sau 24h
+            expires: DateTime.UtcNow.AddHours(24),
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);

@@ -11,6 +11,16 @@ public class AuthRepository : IAuthRepository
     {
         _context = context;
     }
+    public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
+    {
+        return await _context.RefreshTokens.Include(r => r.User)
+            .FirstOrDefaultAsync(r => r.Token == token);
+    }
+    public async Task AddRefreshTokenAsync(RefreshToken refreshToken)
+    {
+        await _context.RefreshTokens.AddAsync(refreshToken);
+        await _context.SaveChangesAsync();
+    }
 
     // Kiểm tra xem email đã tồn tại trong hệ thống hay chưa
     public async Task<bool> EmailExistsAsync(string email) => await _context.Users.AnyAsync(u => u.Email == email);
@@ -18,32 +28,31 @@ public class AuthRepository : IAuthRepository
     // Thêm một người dùng mới vào database (chưa lưu ngay)
     public async Task AddUserAsync(User user)
     {
+
+        if (user.Id == Guid.Empty)
+        {
+            user.Id = Guid.NewGuid();
+        }
         // Gán thời gian tạo người dùng (UTC)
-        user.CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Unspecified);
+        user.CreatedAt = DateTime.UtcNow;
+        //user.CreatedAt = DateTime.SpecifyKind(user.CreatedAt, DateTimeKind.Utc);
 
         // Thêm user vào DbContext nhưng chưa lưu vào database
         await _context.Users.AddAsync(user);
     }
 
+    public async Task RemoveRefreshTokenAsync(RefreshToken token)
+    {
+        _context.RefreshTokens.Remove(token);
+        await _context.SaveChangesAsync();
+    }
+
     // Lưu các thay đổi vào database
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
-
-    // Lấy thông tin người dùng dựa trên mã xác minh (Verification Token)
-    public async Task<User?> GetUserByTokenAsync(string token)
-    {
-        return await _context.Users.FirstOrDefaultAsync(u => u.VerificationToken == token);
-    }
 
     // Lấy thông tin người dùng dựa trên email
     public async Task<User?> GetUserByEmailAsync(string email)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
     }
-
-
-    //Task<bool> EmailExistsAsync(string email);
-    //Task AddUserAsync(User user);
-    //Task<User?> GetUserByTokenAsync(string token);
-    //Task<User?> GetUserByEmailAsync(string email);
-    //Task SaveChangesAsync();
 }
