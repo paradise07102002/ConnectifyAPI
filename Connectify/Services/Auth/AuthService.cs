@@ -10,6 +10,7 @@ public class AuthService : IAuthService
     private readonly IAuthRepository _authRepository;
     private readonly IEmailSender _emailSender;
     private readonly IConfiguration _configuration;
+
     public AuthService(IAuthRepository authRepository, IEmailSender emailSender, IConfiguration configuration)
     {
         _authRepository = authRepository;
@@ -17,6 +18,7 @@ public class AuthService : IAuthService
         _configuration = configuration;
     }
 
+    // Registers a new user
     public async Task<bool> RegisterUserAsync(RegisterDto dto)
     {
         if (await _authRepository.EmailExistsAsync(dto.Email)) return false;
@@ -40,11 +42,12 @@ public class AuthService : IAuthService
         string apiUrl = _configuration["AppSettings:ApiUrl"];
         string confirmationLink = $"{apiUrl}/api/auth/confirm-email?token={newUser.VerificationToken}";
 
-        await _emailSender.SendEmailAsync(dto.Email, "Xác nhận email", $"Nhấn vào link sau để xác thực tài khoản: <a href='{confirmationLink}'>Xác nhận</>");
+        await _emailSender.SendEmailAsync(dto.Email, "Email Confirmation", $"Click the following link to verify your account: <a href='{confirmationLink}'>Confirm</>");
 
         return true;
     }
 
+    // Confirms email verification
     public async Task<string?> ConfirmEmailAsync(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -67,10 +70,10 @@ public class AuthService : IAuthService
             var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken validatedToken);
             var email = principal.FindFirst(ClaimTypes.Email)?.Value;
 
-            if (email == null) return "Token không hợp lệ hoặc đã hết hạn";
+            if (email == null) return "Invalid or expired token";
 
             var user = await _authRepository.GetUserByEmailAsync(email);
-            if (user == null || user.IsVerified) return "Token không hợp lệ hoặc đã hết hạn";
+            if (user == null || user.IsVerified) return "Invalid or expired token";
 
             user.IsVerified = true;
             user.VerificationToken = null;
@@ -79,10 +82,11 @@ public class AuthService : IAuthService
         }
         catch (Exception)
         {
-            return "Token không hợp lệ hoặc đã hết hạn!";
+            return "Invalid or expired token!";
         }
     }
 
+    // Logs in a user
     public async Task<(LoginResult, string?, string?)> LoginAsync(LoginDto dto)
     {
         var user = await _authRepository.GetUserByEmailAsync(dto.Email);
@@ -108,12 +112,13 @@ public class AuthService : IAuthService
         return (LoginResult.Success, accessToken, refreshToken);
     }
 
+    // Refreshes an access token using a refresh token
     public async Task<(bool IsSuccess, string? AccessToken, string? RefreshToken, string? ErrorMessage)> RefreshAccessTokenAsync(string refreshToken)
     {
         var storedRefreshToken = await _authRepository.GetRefreshTokenAsync(refreshToken);
         if (storedRefreshToken == null || storedRefreshToken.Expires <= DateTime.UtcNow)
         {
-            return (false, null, null, "Refresh Token không hợp lệ hoặc đã hết hạn");
+            return (false, null, null, "Invalid or expired refresh token");
         }
 
         var user = storedRefreshToken.User;
@@ -122,6 +127,7 @@ public class AuthService : IAuthService
         return (true, newAccessToken, refreshToken, null);
     }
 
+    // Logs out a user by removing their refresh token
     public async Task<bool> LogoutAsync(string refreshToken)
     {
         var storedToken = await _authRepository.GetRefreshTokenAsync(refreshToken);
@@ -129,16 +135,19 @@ public class AuthService : IAuthService
         if (refreshToken == null)
         {
             return false;
-        }    
+        }
 
         await _authRepository.RemoveRefreshTokenAsync(storedToken);
         return true;
     }
 
+    // Generates a secure refresh token
     private string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
+
+    // Generates a JWT access token
     private string GenerateJwtToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -146,10 +155,10 @@ public class AuthService : IAuthService
 
         var claims = new[]
         {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.Username),
-        new Claim(ClaimTypes.Email, user.Email),
-    };
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email),
+        };
 
         var token = new JwtSecurityToken(
             _configuration["Jwt:Issuer"],
@@ -161,6 +170,7 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
+    // Generates a verification token for email confirmation
     private string GenerateVerificationToken(string email)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
@@ -168,9 +178,9 @@ public class AuthService : IAuthService
 
         var claims = new[]
         {
-        new Claim(ClaimTypes.Email, email),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) 
-    };
+            new Claim(ClaimTypes.Email, email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
         var token = new JwtSecurityToken(
             issuer: _configuration["Jwt:Issuer"],
