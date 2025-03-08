@@ -122,6 +122,19 @@ public class AuthService : IAuthService
         return (true, newAccessToken, refreshToken, null);
     }
 
+    public async Task<bool> LogoutAsync(string refreshToken)
+    {
+        var storedToken = await _authRepository.GetRefreshTokenAsync(refreshToken);
+
+        if (refreshToken == null)
+        {
+            return false;
+        }    
+
+        await _authRepository.RemoveRefreshTokenAsync(storedToken);
+        return true;
+    }
+
     private string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
