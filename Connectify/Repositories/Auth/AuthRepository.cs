@@ -4,53 +4,56 @@ using Microsoft.EntityFrameworkCore;
 
 public class AuthRepository : IAuthRepository
 {
-    private readonly AppDbContext _context; // Đối tượng DbContext để tương tác với database
+    private readonly AppDbContext _context; // DbContext object for interacting with the database
 
-    // Constructor nhận vào AppDbContext và gán vào biến cục bộ _context
+    // Constructor that receives AppDbContext and assigns it to the local variable _context
     public AuthRepository(AppDbContext context)
     {
         _context = context;
     }
+
+    // Retrieves a refresh token from the database, including the associated user
     public async Task<RefreshToken?> GetRefreshTokenAsync(string token)
     {
         return await _context.RefreshTokens.Include(r => r.User)
             .FirstOrDefaultAsync(r => r.Token == token);
     }
+
+    // Adds a new refresh token to the database
     public async Task AddRefreshTokenAsync(RefreshToken refreshToken)
     {
         await _context.RefreshTokens.AddAsync(refreshToken);
         await _context.SaveChangesAsync();
     }
 
-    // Kiểm tra xem email đã tồn tại trong hệ thống hay chưa
+    // Checks if an email already exists in the system
     public async Task<bool> EmailExistsAsync(string email) => await _context.Users.AnyAsync(u => u.Email == email);
 
-    // Thêm một người dùng mới vào database (chưa lưu ngay)
+    // Adds a new user to the database (without saving immediately)
     public async Task AddUserAsync(User user)
     {
-
         if (user.Id == Guid.Empty)
         {
             user.Id = Guid.NewGuid();
         }
-        // Gán thời gian tạo người dùng (UTC)
+        // Assigns the user creation time (UTC)
         user.CreatedAt = DateTime.UtcNow;
-        //user.CreatedAt = DateTime.SpecifyKind(user.CreatedAt, DateTimeKind.Utc);
 
-        // Thêm user vào DbContext nhưng chưa lưu vào database
+        // Adds the user to the DbContext but does not save to the database yet
         await _context.Users.AddAsync(user);
     }
 
+    // Removes a refresh token from the database
     public async Task RemoveRefreshTokenAsync(RefreshToken token)
     {
         _context.RefreshTokens.Remove(token);
         await _context.SaveChangesAsync();
     }
 
-    // Lưu các thay đổi vào database
+    // Saves changes to the database
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
 
-    // Lấy thông tin người dùng dựa trên email
+    // Retrieves user information based on email
     public async Task<User?> GetUserByEmailAsync(string email)
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
