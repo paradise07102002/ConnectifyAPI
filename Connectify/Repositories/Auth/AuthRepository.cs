@@ -41,6 +41,12 @@ public class AuthRepository : IAuthRepository
         await _context.Users.AddAsync(user);
     }
 
+    public async Task RemoveRefreshTokenAsync(RefreshToken token)
+    {
+        _context.RefreshTokens.Remove(token);
+        await _context.SaveChangesAsync();
+    }
+
     // Lưu các thay đổi vào database
     public async Task SaveChangesAsync() => await _context.SaveChangesAsync();
 
