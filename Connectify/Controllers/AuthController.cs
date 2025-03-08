@@ -74,4 +74,17 @@ public class AuthController : ControllerBase
         });
     }
 
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutDto dto)
+    {
+        var success = await _authService.LogoutAsync(dto.RefreshToken);
+
+        if (!success)
+        {
+            return BadRequest(new { message = "Đăng xuất thất bại. RefreshToken không hợp lệ!" });
+        }
+
+        return Ok(new { message = "Đăng xuất thành công!" });
+    }
+
 }
