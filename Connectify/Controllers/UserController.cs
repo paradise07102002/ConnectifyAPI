@@ -8,9 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    public UserController(IUserService userService)
+    private readonly GoogleCloudStorageService _storageService;
+
+    public UserController(IUserService userService, GoogleCloudStorageService storageService)
     {
         _userService = userService;
+        _storageService = storageService;
     }
 
     [HttpGet("me")]
@@ -32,5 +35,36 @@ public class UserController : ControllerBase
         }
         return Ok(user);
             
+    }
+
+    [HttpPost("upload-avatar")]
+    public async Task<IActionResult> UploadAvatar(IFormFile file)
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized(new { message = "Invalid token" });
+            }
+
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Please select the appropriate file");
+            }
+
+            string imageUrl = await _storageService.UploadFileAsync(file, userId.ToString());
+
+            await _userService.UpdateUserAvatarAsync(userId, imageUrl);
+
+            return Ok(new { message = "Photo uploaded successfully", avatarUrl = imageUrl });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Image loading error", error = ex.Message });
+        } 
+        
+        
     }
 }
