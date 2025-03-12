@@ -20,4 +20,13 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
     }
+    public async Task UpdateUserAvatarAsync(Guid userId, string avatarUrl)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+            throw new Exception("User not found!");
+
+        user.AvatarUrl = avatarUrl;
+        await _context.SaveChangesAsync();
+    }
 }
