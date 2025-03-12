@@ -1,4 +1,5 @@
 ﻿using Connectify.Models;
+using Microsoft.EntityFrameworkCore;
 
 public class UserService : IUserService
 {
@@ -32,5 +33,14 @@ public class UserService : IUserService
             AvatarUrl = user.AvatarUrl,
             CreatedAt = user.CreatedAt,
         };
+    }
+    public async Task<string> UpdateUserAvatarAsync(Guid userId, string avatarUrl)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null)
+            throw new Exception("User not found!");
+
+        await _userRepository.UpdateUserAvatarAsync(userId, avatarUrl);
+        return avatarUrl;
     }
 }
