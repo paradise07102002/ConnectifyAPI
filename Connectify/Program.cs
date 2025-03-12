@@ -81,6 +81,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>(); // Email service
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<GoogleCloudStorageService>();
 
 // Configure OpenAPI for documentation
 builder.Services.AddOpenApi();
