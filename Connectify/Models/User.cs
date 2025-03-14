@@ -35,4 +35,6 @@ public partial class User
 
     public bool IsActive { get; set; }
     public List<RefreshToken> RefreshTokens { get; set; } = new();
+    public List<Post> Posts { get; set; } = new();
+   
 }
