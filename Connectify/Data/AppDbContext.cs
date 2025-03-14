@@ -54,6 +54,12 @@ namespace Connectify.Data
                 .WithMany(p => p.Likes)
                 .HasForeignKey(l => l.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Like>()
+                .HasOne(l => l.User)
+                .WithMany(u => u.Likes)
+                .HasForeignKey(l => l.userId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
