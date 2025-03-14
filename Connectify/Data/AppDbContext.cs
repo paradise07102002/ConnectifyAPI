@@ -60,6 +60,12 @@ namespace Connectify.Data
                 .WithMany(u => u.Likes)
                 .HasForeignKey(l => l.userId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Share>()
+                .HasOne(s => s.Post)
+                .WithMany(p => p.shares)
+                .HasForeignKey(s => s.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
