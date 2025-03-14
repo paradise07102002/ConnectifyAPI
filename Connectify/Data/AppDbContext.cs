@@ -48,6 +48,12 @@ namespace Connectify.Data
                 .WithMany(u => u.Comments)
                 .HasForeignKey(cm => cm.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Like>()
+                .HasOne(l => l.Post)
+                .WithMany(p => p.Likes)
+                .HasForeignKey(l => l.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
