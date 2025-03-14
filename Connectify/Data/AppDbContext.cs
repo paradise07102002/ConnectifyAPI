@@ -36,6 +36,12 @@ namespace Connectify.Data
                 .WithMany(p => p.Medias)
                 .HasForeignKey(pm => pm.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(cm => cm.Post)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(cm => cm.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
