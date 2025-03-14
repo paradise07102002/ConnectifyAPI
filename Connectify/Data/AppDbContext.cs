@@ -24,6 +24,12 @@ namespace Connectify.Data
                 .WithMany(u => u.RefreshTokens)
                 .HasForeignKey(rt => rt.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Post>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Posts)
+                .HasForeignKey(p => p.userId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
