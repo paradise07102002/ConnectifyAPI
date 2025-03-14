@@ -66,6 +66,12 @@ namespace Connectify.Data
                 .WithMany(p => p.shares)
                 .HasForeignKey(s => s.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Share>()
+                .HasOne(s => s.User)
+                .WithMany(u => u.Shares)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
