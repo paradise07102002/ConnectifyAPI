@@ -19,7 +19,6 @@ namespace Connectify.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Thiết lập quan hệ 1-Nhiều giữa User và RefreshToken
             modelBuilder.Entity<RefreshToken>()
                 .HasOne(rt => rt.User)
                 .WithMany(u => u.RefreshTokens)
