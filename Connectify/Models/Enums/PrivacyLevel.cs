@@ -1,6 +1,6 @@
 ﻿public enum PrivacyLevel
 {
-    Public,
-    Friends,
-    Private,
+    Public = 0,
+    Friends = 1,
+    Private = 2,
 }
