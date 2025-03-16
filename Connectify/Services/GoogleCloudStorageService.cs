@@ -32,4 +32,28 @@ public class GoogleCloudStorageService
 
         return $"https://storage.googleapis.com/{_bucketName}/{fileName}";
     }
+
+    public async Task<Google.Apis.Storage.v1.Data.Object> UploadFileToGCS(IFormFile file, string userId)
+    {
+        if (file == null || file.Length == 0)
+        {
+            throw new Exception("Invalid file");
+        }
+
+        string fileName = $"postmedia/{userId}_{Guid.NewGuid()}_{file.FileName}";
+
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+
+        var storage = await _storageClient.UploadObjectAsync(
+            _bucketName,
+            fileName,
+            file.ContentType,
+            memoryStream
+        );
+
+        return storage;
+    }
+
 }
