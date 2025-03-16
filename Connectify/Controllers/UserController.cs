@@ -54,7 +54,9 @@ public class UserController : ControllerBase
                 return BadRequest("Please select the appropriate file");
             }
 
-            string imageUrl = await _storageService.UploadFileAsync(file, userId.ToString());
+            var storage = await _storageService.UploadFileAsync(file, userId.ToString());
+
+            string imageUrl = storage.MediaLink;
 
             await _userService.UpdateUserAvatarAsync(userId, imageUrl);
 
