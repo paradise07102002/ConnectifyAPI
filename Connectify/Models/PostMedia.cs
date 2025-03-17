@@ -1,4 +1,6 @@
-﻿namespace Connectify.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Connectify.Models
 {
     public class PostMedia
     {
@@ -6,6 +8,7 @@
         public string MediaUrl { get; set; } = null!;
         public MediaType Type { get; set; }
         public Guid PostId { get; set; }
+        [JsonIgnore]
         public Post Post { get; set; } = null!;
     }
 }
