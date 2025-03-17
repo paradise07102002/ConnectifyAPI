@@ -1,4 +1,6 @@
-﻿namespace Connectify.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Connectify.Models
 {
     public class Post
     {
@@ -9,6 +11,7 @@
         public DateTime? UpdateAt { get; set; }
 
         public Guid userId { get; set; }
+        [JsonIgnore]
         public User User { get; set; } = null!;
 
         public List<PostMedia> Medias { get; set; } = new();
