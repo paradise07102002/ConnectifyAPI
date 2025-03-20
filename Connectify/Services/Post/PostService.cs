@@ -46,7 +46,7 @@ public class PostService : IPostService
         return await _postRepository.GetPostByIdAsync(postId);
     }
 
-    public async Task<List<Post>> GetAllPostAsync()
+    public async Task<List<PostDto>> GetAllPostAsync()
     {
         return await _postRepository.GetAllPostAsync();
     }

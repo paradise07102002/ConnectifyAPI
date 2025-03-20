@@ -26,9 +26,9 @@ public class PostRepository : IPostRepository
             .FirstOrDefaultAsync(p => p.Id == postId);
     }
 
-    public async Task<List<Post>> GetAllPostAsync()
+    public async Task<List<PostDto>> GetAllPostAsync()
     {
-        return await _context.Posts
+        var posts = await _context.Posts
             .Include(p => p.User)
             .Include(p => p.Medias)
             .Include(p => p.Comments)
@@ -36,5 +36,21 @@ public class PostRepository : IPostRepository
             .Include(p => p.shares)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
+
+        return posts.Select(p => new PostDto
+        {
+            Id = p.Id,
+            Content = p.Content,
+            PrivacyLevel = p.PrivacyLevel,
+            CreatedAt = p.CreatedAt,
+            UpdateAt = p.UpdateAt,
+            userId = p.userId,
+            AvatarUrl = p.User.AvatarUrl,
+            FullName = p.User.FullName,
+            Medias = p.Medias,
+            Comments = p.Comments,
+            Likes = p.Likes,
+            shares = p.shares,
+        }).ToList();
     }
 }
