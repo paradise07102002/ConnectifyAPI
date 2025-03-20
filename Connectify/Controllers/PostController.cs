@@ -39,7 +39,7 @@ namespace Connectify.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}/get-post-by-id")]
         public async Task<IActionResult> GetPostById(Guid id)
         {
             var post = await _postService.GetPostByIdAsync(id);
@@ -52,7 +52,7 @@ namespace Connectify.Controllers
                 
         }
 
-        [HttpGet]
+        [HttpGet("get-all-post")]
         public async Task<IActionResult> GetAllPost()
         {
             var posts = await _postService.GetAllPostAsync();
