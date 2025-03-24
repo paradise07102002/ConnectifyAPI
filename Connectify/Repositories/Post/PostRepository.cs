@@ -31,7 +31,7 @@ public class PostRepository : IPostRepository
         var posts = await _context.Posts
             .Include(p => p.User)
             .Include(p => p.Medias)
-            .Include(p => p.Comments)
+            .Include(p => p.Comments).ThenInclude(c => c.User)
             .Include(p => p.Likes)
             .Include(p => p.shares)
             .OrderByDescending(p => p.CreatedAt)
@@ -48,7 +48,15 @@ public class PostRepository : IPostRepository
             AvatarUrl = p.User.AvatarUrl,
             FullName = p.User.FullName,
             Medias = p.Medias,
-            Comments = p.Comments,
+            Comments = p.Comments.Select(c => new CommentDto
+            {
+                Id = c.Id,
+                Content = c.Content,
+                CreateAt = c.CreateAt,
+                UserId = c.UserId,
+                fullName = c.User.FullName,
+                avatarUrl = c.User.AvatarUrl,
+            }).ToList(),
             Likes = p.Likes,
             shares = p.shares,
         }).ToList();
