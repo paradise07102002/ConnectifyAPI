@@ -8,15 +8,15 @@ namespace Connectify.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class CommentController : ControllerBase
+    public class CommentsController : ControllerBase
     {
         private readonly ICommentService _commentService;
-        public CommentController(ICommentService commentService)
+        public CommentsController(ICommentService commentService)
         {
             _commentService = commentService;
         }
 
-        [HttpPost]
+        [HttpPost()]
         public async Task<IActionResult> AddComment([FromBody] AddCommentDto dto, string postId)
         {
             if (!ModelState.IsValid)
@@ -31,7 +31,7 @@ namespace Connectify.Controllers
             }
 
             var comment = await _commentService.AddCommentAsync(dto, userId, postId);
-            return Ok(comment);
+            return Ok(new { message = "Comment successful" });
         }
     }
 }
