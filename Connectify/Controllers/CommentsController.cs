@@ -17,7 +17,7 @@ namespace Connectify.Controllers
         }
 
         [HttpPost()]
-        public async Task<IActionResult> AddComment([FromBody] CreateCommentDto dto, string postId)
+        public async Task<IActionResult> CreateComment([FromBody] CreateCommentDto dto, string postId)
         {
             if (!ModelState.IsValid)
             {
@@ -30,7 +30,7 @@ namespace Connectify.Controllers
                 return Unauthorized();
             }
 
-            var comment = await _commentService.AddCommentAsync(dto, userId, postId);
+            var comment = await _commentService.CreateCommentAsync(dto, userId, postId);
             return Ok(new { message = "Comment successful" });
         }
     }
