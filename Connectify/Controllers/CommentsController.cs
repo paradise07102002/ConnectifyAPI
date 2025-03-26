@@ -17,7 +17,7 @@ namespace Connectify.Controllers
         }
 
         [HttpPost()]
-        public async Task<IActionResult> AddComment([FromBody] AddCommentDto dto, string postId)
+        public async Task<IActionResult> AddComment([FromBody] CreateCommentDto dto, string postId)
         {
             if (!ModelState.IsValid)
             {
