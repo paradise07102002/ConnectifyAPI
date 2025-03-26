@@ -8,7 +8,7 @@ public class CommentService : ICommentService
         _commentRepository = commentRepository;
     }
 
-    public async Task<Comment> AddCommentAsync(CreateCommentDto dto, string userId, string postId)
+    public async Task<Comment> CreateCommentAsync(CreateCommentDto dto, string userId, string postId)
     {
         var comment = new Comment
         {
@@ -17,6 +17,6 @@ public class CommentService : ICommentService
             UserId = Guid.Parse(userId),
         };
 
-        return await _commentRepository.AddCommentAsync(comment);
+        return await _commentRepository.CreateCommentAsync(comment);
     }
 }
