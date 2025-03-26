@@ -52,7 +52,7 @@ public class PostRepository : IPostRepository
             {
                 Id = c.Id,
                 Content = c.Content,
-                CreateAt = c.CreateAt,
+                CreatedAt = c.CreatedAt,
                 UserId = c.UserId,
                 fullName = c.User.FullName,
                 avatarUrl = c.User.AvatarUrl,
