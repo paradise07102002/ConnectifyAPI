@@ -9,7 +9,7 @@ public class CommentRepository : ICommentRepository
     {
         _context = context;
     }
-    public async Task<Comment> AddCommentAsync(Comment comment)
+    public async Task<Comment> CreateCommentAsync(Comment comment)
     {
         _context.Comments.Add(comment);
         await _context.SaveChangesAsync();
