@@ -2,5 +2,5 @@
 
 public interface ICommentService
 {
-    Task<Comment> AddCommentAsync(CreateCommentDto dto, string userId, string postId);
+    Task<Comment> CreateCommentAsync(CreateCommentDto dto, string userId, string postId);
 }
