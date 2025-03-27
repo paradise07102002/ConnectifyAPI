@@ -35,12 +35,12 @@ namespace Connectify.Controllers
 
             var post = await _postService.CreatePostAsync(createPostDto, userId);
 
-            return CreatedAtAction(nameof(GetPostById), new { id = post.Id }, post);
+            return CreatedAtAction(nameof(GetPostByPostId), new { id = post.Id }, post);
 
         }
 
         [HttpGet("{postId}")]
-        public async Task<IActionResult> GetPostById(Guid postId)
+        public async Task<IActionResult> GetPostByPostId(Guid postId)
         {
             var post = await _postService.GetPostByIdAsync(postId);
             if (post == null)
