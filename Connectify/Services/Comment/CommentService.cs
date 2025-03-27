@@ -19,4 +19,9 @@ public class CommentService : ICommentService
 
         return await _commentRepository.CreateCommentAsync(comment);
     }
+
+    public Task<List<CommentDto>> GetCommentsAsync(Guid postId)
+    {
+        return _commentRepository.GetCommentsAsync(postId);
+    }
 }
