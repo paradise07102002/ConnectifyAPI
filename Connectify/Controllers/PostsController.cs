@@ -9,11 +9,11 @@ namespace Connectify.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class PostController : ControllerBase
+    public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
 
-        public PostController(IPostService postService)
+        public PostsController(IPostService postService)
         {
             _postService = postService;
         }
@@ -35,14 +35,14 @@ namespace Connectify.Controllers
 
             var post = await _postService.CreatePostAsync(createPostDto, userId);
 
-            return CreatedAtAction(nameof(GetPostById), new { id = post.Id }, post);
+            return CreatedAtAction(nameof(GetPostByPostId), new { id = post.Id }, post);
 
         }
 
-        [HttpGet("{id}/get-post-by-id")]
-        public async Task<IActionResult> GetPostById(Guid id)
+        [HttpGet("{postId}")]
+        public async Task<IActionResult> GetPostByPostId(Guid postId)
         {
-            var post = await _postService.GetPostByIdAsync(id);
+            var post = await _postService.GetPostByIdAsync(postId);
             if (post == null)
             {
                 return NotFound(new { message = "Post not found" });
@@ -52,7 +52,7 @@ namespace Connectify.Controllers
                 
         }
 
-        [HttpGet("get-all-post")]
+        [HttpGet]
         public async Task<IActionResult> GetAllPost()
         {
             var posts = await _postService.GetAllPostAsync();
