@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Connectify.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +31,22 @@ namespace Connectify.Controllers
 
             var comment = await _commentService.CreateCommentAsync(dto, userId, postId);
             return Ok(new { message = "Comment successful" });
+        }
+
+        [HttpGet] 
+        public async Task<IActionResult> GetComments(Guid postId) 
+        { 
+            if (!ModelState.IsValid) 
+            { 
+                return BadRequest(ModelState); 
+            } 
+            var comments = await _commentService.GetCommentsAsync(postId); 
+
+            if (comments == null) 
+            { 
+                return NotFound(new { message = "Post not found" }); 
+            } 
+            return Ok(comments); 
         }
     }
 }
