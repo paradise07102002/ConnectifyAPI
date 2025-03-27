@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Connectify.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/posts/{postId}/comments")]
     [ApiController]
     [Authorize]
     public class CommentsController : ControllerBase
@@ -16,7 +16,7 @@ namespace Connectify.Controllers
             _commentService = commentService;
         }
 
-        [HttpPost()]
+        [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] CreateCommentDto dto, string postId)
         {
             if (!ModelState.IsValid)
