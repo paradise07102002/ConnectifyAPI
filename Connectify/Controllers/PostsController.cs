@@ -39,10 +39,10 @@ namespace Connectify.Controllers
 
         }
 
-        [HttpGet("{id}/get-post-by-id")]
-        public async Task<IActionResult> GetPostById(Guid id)
+        [HttpGet("{postId}")]
+        public async Task<IActionResult> GetPostById(Guid postId)
         {
-            var post = await _postService.GetPostByIdAsync(id);
+            var post = await _postService.GetPostByIdAsync(postId);
             if (post == null)
             {
                 return NotFound(new { message = "Post not found" });
@@ -52,7 +52,7 @@ namespace Connectify.Controllers
                 
         }
 
-        [HttpGet("get-all-post")]
+        [HttpGet]
         public async Task<IActionResult> GetAllPost()
         {
             var posts = await _postService.GetAllPostAsync();
