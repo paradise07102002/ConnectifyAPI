@@ -4,7 +4,7 @@ public class CommentDto
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Content { get; set; } = null!;
-    public DateTime CreateAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     public Guid PostId { get; set; }
 

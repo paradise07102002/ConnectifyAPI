@@ -8,17 +8,20 @@ public class CommentService : ICommentService
         _commentRepository = commentRepository;
     }
 
-    public async Task<Comment> AddCommentAsync(AddCommentDto dto, string userId, string postId)
+    public async Task<Comment> CreateCommentAsync(CreateCommentDto dto, string userId, string postId)
     {
         var comment = new Comment
         {
-            Id = Guid.NewGuid(),
             Content = dto.Content,
-            CreateAt = dto.CreateAt,
             PostId = Guid.Parse(postId),
             UserId = Guid.Parse(userId),
         };
 
-        return await _commentRepository.AddCommentAsync(comment);
+        return await _commentRepository.CreateCommentAsync(comment);
+    }
+
+    public Task<List<CommentDto>> GetCommentsAsync(Guid postId)
+    {
+        return _commentRepository.GetCommentsAsync(postId);
     }
 }

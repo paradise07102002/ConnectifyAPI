@@ -2,5 +2,6 @@
 
 public interface ICommentRepository
 {
-    Task<Comment> AddCommentAsync(Comment comment);
+    Task<Comment> CreateCommentAsync(Comment comment);
+    Task<List<CommentDto>> GetCommentsAsync(Guid postId);
 }
