@@ -47,18 +47,6 @@ public class PostRepository : IPostRepository
             userId = p.userId,
             AvatarUrl = p.User.AvatarUrl,
             FullName = p.User.FullName,
-            Medias = p.Medias,
-            Comments = p.Comments.Select(c => new CommentDto
-            {
-                Id = c.Id,
-                Content = c.Content,
-                CreatedAt = c.CreatedAt,
-                UserId = c.UserId,
-                fullName = c.User.FullName,
-                avatarUrl = c.User.AvatarUrl,
-            }).ToList(),
-            Likes = p.Likes,
-            shares = p.shares,
         }).ToList();
     }
 }
